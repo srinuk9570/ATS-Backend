@@ -7,7 +7,7 @@ const passport = require('passport')
 const db       = require('../config/db')
 
 const JWT_SECRET = process.env.JWT_SECRET || 'srinu_secret_key_ats_2026'
-const FRONTEND   = process.env.FRONTEND_URL || 'http://localhost:5173'
+const FRONTEND   = process.env.FRONTEND_URL || 'https://ats-frontend-liard.vercel.app'
 
 // ── JWT helper ────────────────────────────────────────────────────────────────
 function makeToken(user) {
@@ -71,7 +71,7 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET &&
   passport.use(new GoogleStrategy({
     clientID:     process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL:  'http://localhost:5000/api/auth/google/callback',
+    callbackURL: 'https://ats-backend-s69p.onrender.com/api/auth/google/callback',
   }, async (accessToken, refreshToken, profile, done) => {
     try {
       const email    = profile.emails?.[0]?.value
@@ -93,7 +93,7 @@ if (process.env.FACEBOOK_APP_ID && !process.env.FACEBOOK_APP_ID.startsWith('your
   passport.use(new FacebookStrategy({
     clientID:      process.env.FACEBOOK_APP_ID,
     clientSecret:  process.env.FACEBOOK_APP_SECRET,
-    callbackURL:   'http://localhost:5000/api/auth/facebook/callback',
+    callbackURL: 'https://ats-backend-s69p.onrender.com/api/auth/facebook/callback',
     profileFields: ['id', 'emails', 'name'],
   }, async (accessToken, refreshToken, profile, done) => {
     try {
@@ -113,7 +113,7 @@ if (process.env.LINKEDIN_CLIENT_ID && !process.env.LINKEDIN_CLIENT_ID.startsWith
   passport.use(new LinkedInStrategy({
     clientID:     process.env.LINKEDIN_CLIENT_ID,
     clientSecret: process.env.LINKEDIN_CLIENT_SECRET,
-    callbackURL:  'http://localhost:5000/api/auth/linkedin/callback',
+    callbackURL: 'https://ats-backend-s69p.onrender.com/api/auth/linkedin/callback',
     scope:        ['r_emailaddress', 'r_liteprofile'],
   }, async (accessToken, refreshToken, profile, done) => {
     try {
