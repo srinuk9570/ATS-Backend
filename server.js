@@ -8,7 +8,7 @@ const pdfParse = require('pdf-parse')
 const mammoth  = require('mammoth')
 const dotenv   = require('dotenv')
 const passport = require('passport')
-console.log('FRONTEND_URL =', FRONTEND);
+
 
 dotenv.config()
 
@@ -312,6 +312,58 @@ app.delete('/api/scans/:id', (req, res) => {
 // ── 404 handler ───────────────────────────────────────────────────────────────
 app.use((req, res) => {
   res.status(404).json({ error: `Route not found: ${req.method} ${req.path}` })
+})
+
+// ── Change Password ───────────────────────────────────────────────────────────
+app.put('/api/auth/change-password', async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1]
+    if (!token) return res.status(401).json({ error: 'No token provided.' })
+
+    const jwt     = require('jsonwebtoken')
+    const bcrypt  = require('bcryptjs')
+    const db      = require('./src/config/db')
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'srinu_secret_key')
+
+    const { currentPassword, newPassword } = req.body
+    if (!currentPassword || !newPassword)
+      return res.status(400).json({ error: 'Current and new password required.' })
+    if (newPassword.length < 6)
+      return res.status(400).json({ error: 'New password must be at least 6 characters.' })
+
+    const result = await db.query('SELECT * FROM users WHERE id = $1', [decoded.id])
+    const user   = result.rows[0]
+    if (!user) return res.status(404).json({ error: 'User not found.' })
+
+    const valid = await bcrypt.compare(currentPassword, user.password_hash)
+    if (!valid) return res.status(401).json({ error: 'Current password is incorrect.' })
+
+    const hash = await bcrypt.hash(newPassword, 10)
+    await db.query('UPDATE users SET password_hash = $1 WHERE id = $2', [hash, decoded.id])
+
+    res.json({ success: true, message: 'Password updated successfully.' })
+  } catch (err) {
+    console.error('Change password error:', err.message)
+    res.status(500).json({ error: 'Failed to update password.' })
+  }
+})
+
+// ── Delete Account ────────────────────────────────────────────────────────────
+app.delete('/api/auth/delete-account', async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1]
+    if (!token) return res.status(401).json({ error: 'No token provided.' })
+
+    const jwt     = require('jsonwebtoken')
+    const db      = require('./src/config/db')
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'srinu_secret_key')
+
+    await db.query('DELETE FROM users WHERE id = $1', [decoded.id])
+    res.json({ success: true, message: 'Account deleted successfully.' })
+  } catch (err) {
+    console.error('Delete account error:', err.message)
+    res.status(500).json({ error: 'Failed to delete account.' })
+  }
 })
 
 // ── Global error handler ──────────────────────────────────────────────────────
