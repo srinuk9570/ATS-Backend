@@ -41,25 +41,45 @@ function oauthSuccess(res, user) {
     role:  user.role,
   })
   res.send(`<!DOCTYPE html><html><body><script>
+    const targets = [
+      ${JSON.stringify(FRONTEND)},
+      'http://localhost:5173',
+      'http://localhost:3000',
+      'https://ats-frontend-liard.vercel.app'
+    ];
     if (window.opener) {
-      window.opener.postMessage(
-        { type: 'oauth_success', token: ${JSON.stringify(token)}, user: ${userData} },
-        ${JSON.stringify(FRONTEND)}
-      );
+      targets.forEach(function(target) {
+        try {
+          window.opener.postMessage(
+            { type: 'oauth_success', token: ${JSON.stringify(token)}, user: ${userData} },
+            target
+          );
+        } catch(e) {}
+      });
     }
-    window.close();
+    setTimeout(function() { window.close(); }, 500);
   </script></body></html>`)
 }
 
 function oauthFail(res, msg) {
   res.send(`<!DOCTYPE html><html><body><script>
+    const targets = [
+      ${JSON.stringify(FRONTEND)},
+      'http://localhost:5173',
+      'http://localhost:3000',
+      'https://ats-frontend-liard.vercel.app'
+    ];
     if (window.opener) {
-      window.opener.postMessage(
-        { type: 'oauth_error', error: ${JSON.stringify(msg)} },
-        ${JSON.stringify(FRONTEND)}
-      );
+      targets.forEach(function(target) {
+        try {
+          window.opener.postMessage(
+            { type: 'oauth_error', error: ${JSON.stringify(msg)} },
+            target
+          );
+        } catch(e) {}
+      });
     }
-    window.close();
+    setTimeout(function() { window.close(); }, 500);
   </script></body></html>`)
 }
 
@@ -198,7 +218,7 @@ router.post('/register', async (req, res) => {
     })
   } catch (err) {
     console.error('Register error:', err.message)
-    if (err.code === '23505') // unique_violation
+    if (err.code === '23505')
       return res.status(400).json({ error: 'This email is already registered.' })
     res.status(500).json({ error: 'Server error. Please try again.' })
   }
