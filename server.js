@@ -317,7 +317,7 @@ app.use((err, req, res, next) => {
 // ── Start ─────────────────────────────────────────────────────────────────────
 const PORT = parseInt(process.env.PORT) || 5000
 app.listen(PORT, () => {
-  const key = process.env.GOOGLE_API_KEY
+  const key = process.env.ANTHROPIC_API_KEY
   const aiStatus = (!key || key.startsWith('your_')) ? '⚠️  No key — using fallback' : '✅ Claude AI ready'
 
   console.log(`
