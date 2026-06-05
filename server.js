@@ -8,6 +8,7 @@ const pdfParse = require('pdf-parse')
 const mammoth  = require('mammoth')
 const dotenv   = require('dotenv')
 const passport = require('passport')
+console.log('FRONTEND_URL =', FRONTEND);
 
 dotenv.config()
 
